@@ -801,15 +801,19 @@ if __name__ == "__main__":
 	QueryLat = 0
 	QueryLong = 0
 	QueryDict = {}
-	DiskPageSize = 0
-	KeySize = 0
-	PointerSize = 0
-	Dimension = []
-	NumDimension = 0
-	NumMaxKey = 0
-	NumMinKey = 0
+	DiskPageSize = 120
+	KeySize = 8
+	PointerSize = 4
+	Dimension = [14,15]
+	NumDimension = 2
+	NumMaxKey = 10
+	NumMinKey = 5
 	DefaultDict = {}
 	DefaultKeys = []
+	for i in range(NumDimension):
+		DefaultKeys.append(str(i) + 'min')
+		DefaultKeys.append(str(i) + 'max')
+	DefaultDict = dict.fromkeys(DefaultKeys, None)
 	Heap = []
 	BloodGroup = ''
 	BloodGroupList = ['A+','AB+','B+','O+']
@@ -820,22 +824,22 @@ if __name__ == "__main__":
 	queue = []
 	discarded = []
 	k = 0
-	with open('query_real.txt','r') as f:
-		# Dimension = [i- 1 for i in map(int, f.readline().strip().split())]
-		Dimension = map(int, f.readline().strip().split())
-		NumDimension = len(Dimension)
-		DiskPageSize = int(f.readline().strip())
-		string = f.readline().strip().split()
-		# k = int(f.readline().strip())
-		PointerSize = int(string[0])
-		KeySize = int(string[1])
-		NumMaxKey = divmod(DiskPageSize, PointerSize + KeySize)[0]
-		NumMinKey = NumMaxKey/2
-		DefaultKeys = []
-		for i in range(NumDimension):
-			DefaultKeys.append(str(i) + 'min')
-			DefaultKeys.append(str(i) + 'max')
-		DefaultDict = dict.fromkeys(DefaultKeys, None)
+	# with open('query_real.txt','r') as f:
+	# 	# Dimension = [i- 1 for i in map(int, f.readline().strip().split())]
+	# 	Dimension = map(int, f.readline().strip().split())
+	# 	NumDimension = len(Dimension)
+	# 	DiskPageSize = int(f.readline().strip())
+	# 	string = f.readline().strip().split()
+	# 	# k = int(f.readline().strip())
+	# 	PointerSize = int(string[0])
+	# 	KeySize = int(string[1])
+	# 	NumMaxKey = divmod(DiskPageSize, PointerSize + KeySize)[0]
+	# 	NumMinKey = NumMaxKey/2
+	# 	DefaultKeys = []
+	# 	for i in range(NumDimension):
+	# 		DefaultKeys.append(str(i) + 'min')
+	# 		DefaultKeys.append(str(i) + 'max')
+	# 	DefaultDict = dict.fromkeys(DefaultKeys, None)
 
 	Root = node()
 	arglist = sys.argv
