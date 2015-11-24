@@ -1,13 +1,3 @@
-2, Parvesh, JK cement_16 Feb, Ab+, 9711800138, , Faridabad, , , , -, parveshgupta584@gmail.com, , 2015-09-23, 28.6139391, 77.2090212, 0.1, 1446820071.0
-3, Sanjeev, JK cement_16 Feb, AB+, 8586000449, , Laxmi nagar, , , , -, sanjiv_saraf@rediffmail.com, , 2015-09-23, 28.636736, 77.274807, 0.3, 1446906471.0
-4, Abhitab Saxena, JK cement_16 Feb, AB+, 9711984342, , Faridabad, , , , -, abhitab.saxena@jkcement.com, , , 28.6139391, 77.2090212, 0.5, 1446992871.0
-5, Praveen Mehra, JK cement_16 Feb, AB+, 9582945954, , Faridabad, , , , -, praveen.mehra@jkcement.com, , , 28.6139391, 77.2090212, 0.7, 1447079272.0
-6, Sanjay, JK cement_16 Feb, aB+, 9560567457, , Sangam Vihar, , , , -, sanjaydhiman58@gmail.com, , , 28.498909, 77.2389974, 0.9, 1447165672.0
-7, Suresh, JK cement_16 Feb, aB+, 7042597464, , Kalkaji, , , , -, sureshcorpbink@gmail.com, , , 28.5374198, 77.2597274, 0.1, 1447252072.0
-8, Pawan, JK cement_16 Feb, ab+, 8860284919, , rohini, , , , -, pawandua14@gmail.com, , , 28.7494716, 77.0565333, 0.3, 1447338472.0
-9, sanjiv, JK cement_16 Feb, ab+, 9560435245, , arjungarh, , , , -, sanjivkrnair@gmail.com, , , 28.475239, 77.1175451, 0.5, 1447424873.0
-10, Akash Verma, 18 Feb 15_CVS, AB+, 9953557484, , North campus, , , , -, NA, , , 28.687193, 77.210336, 0.7, 1447511273.0
-11, Parmeet Singh, 18 Feb 15_CVS, AB+, 8527334361, , NA, , , , -, NA, , , -22.5479799, 17.0283983, 0.9, 1447597674.0
 12, Rohan, 18 Feb 15_CVS, AB+, 9013852167, , Safdarjang Enclave, , , , -, NA, , , 28.5632857, 77.1911547, 0.1, 1447684074.0
 13, Aditya, 18 Feb 15_CVS, AB+, 8527082838, , Shalimar Bagh, , , , -, NA, , , 28.7164134, 77.1545846, 0.3, 1447770474.0
 14, Jitin, 18 Feb 15_CVS, AB+, 9891859104, , NA, , , , -, NA, , , -22.5479799, 17.0283983, 0.5, 1447856875.0
@@ -79,3 +69,11 @@
 107, Shashi mathur, BDC@Gargi College | 23rd September 2019, AB+, 9958217548, , south delhi, , , , -, sahashimathur45@gmail.com, , , 28.5086497, 77.2175223, 0.7, 1453559300.0
 108, Shreya, BDC@Gargi College | 23rd September 2020, AB+, 78388824161, , gurgaon, , , , -, rockstarshreya14@gmail.com, , , 28.6139391, 77.2090212, 0.9, 1453645701.0
 109, URVASHI AGGARWAL, BDC@Gargi College | 23rd September 2021, AB+, 9873696303, , West Delhi, , , , -, aggarwalurvashi95@gmail.com, , , 28.6663433, 77.067959, 0.1, 1453732101.0
+
+
+
+
+
+
+up = 37.041996, 74.769705
+down = 8.173395, 77.406424

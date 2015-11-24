@@ -636,17 +636,17 @@ if __name__ == "__main__":
             Root = Insert(Root, node(Region = TempDict, index = int(Object[0]), prob = float(Object[-2])))
 	# NN1(Root, {"0min":0, "0max":0, "1min":0, "1max":0})
 	# NN1(Root, {"0min":10000000000, "0max":10000000000, "1min":10000000000, "1max":10000000000, "2min":10000000000, "2max":10000000000})
-	NN1(Root, {"0min":28.6139422, "0max":28.6139422, "1min":77.274811, "1max":77.274811})
-	NN.sort(key= lambda x: x[1])
-	for item in NN:
-		print item[0].index, item[1]
+	# NN1(Root, {"0min":28.6139422, "0max":28.6139422, "1min":77.274811, "1max":77.274811})
+	# NN.sort(key= lambda x: x[1])
+	# for item in NN:
+	# 	print item[0].index, item[1]
 
-	# print '-------------------'
+	# # print '-------------------'
 	heapq.heappush(queue, (0,Root))
-    # IncNN(Root, {"0min":0, "0max":0, "1min":0, "1max":0})
-    # temp(Root, {"0min":0, "0max":0, "1min":0, "1max":0})
-    # temp(Root, {"0min":28.65, "0max":28.65, "1min":77.777, "1max":77.777, "2min":0, "2max":0})
-    # PNNIncRank(Root, {"0min":0, "0max":0, "1min":0, "1max":0, "2min":0, "2max":0})
+ #    # IncNN(Root, {"0min":0, "0max":0, "1min":0, "1max":0})
+ #    # temp(Root, {"0min":0, "0max":0, "1min":0, "1max":0})
+ #    # temp(Root, {"0min":28.65, "0max":28.65, "1min":77.777, "1max":77.777, "2min":0, "2max":0})
+ #    # PNNIncRank(Root, {"0min":0, "0max":0, "1min":0, "1max":0, "2min":0, "2max":0})
     PNNIncRank(Root, {"0min":28.6139422, "0max":28.6139422, "1min":77.274811, "1max":77.274811})
     # BBS(Root)
     # NN1(Root, {"0min":0, "0max":0, "1min":0, "1max":0})
