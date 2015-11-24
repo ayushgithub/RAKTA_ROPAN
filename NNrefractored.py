@@ -1,4 +1,4 @@
-import heapq, time, sys
+import heapq, time, sys, csv
 
 class node(object):
 	def __init__(self, Region = None, index = None, father = None, MinKey = None, MaxKey = None, Children = None, prob = 1):
@@ -108,6 +108,8 @@ def SplitNode(Node):
 	Node.father.Children.append(Child2)
 	Node.father.Region = MergeRegion(Node.father.Region, Child1.Region)
 	Node.father.Region = MergeRegion(Node.father.Region, Child2.Region)
+	CalculateNodeProb(Child1)
+	CalculateNodeProb(Child2)
 	pass
 
 def PickNext(node, Child1, Child2):
@@ -140,12 +142,23 @@ def PickSeeds(node, Child1, Child2):
 	return [Index1, Index2]
 	pass
 
+def CalculateNodeProb(node):
+	maxprob = 0
+	for child in node.Children:
+		if child.prob > maxprob:
+			maxprob = child.prob
+	node.prob = maxprob
+	pass
+
+
 def AdjustTree(node):
 	Temp = node
 	while Temp != None:
 		if len(Temp.Children) > Temp.MaxKey:
 			SplitNode(Temp)
+
 		else:
+			CalculateNodeProb(Temp)
 			if Temp.father != None:
 				Temp.father.Region = MergeRegion(Temp.father.Region, Temp.Region)
 		Temp = Temp.father
@@ -235,6 +248,24 @@ def MINDISTNN(point, rectangle):
 		ans += (pi - ri) ** 2
 	return ans    
 	pass
+
+def MAXDISTNN(point, rectangle):
+	ans = 0
+	for i in range(NumDimension):
+		mindim = str(i) + 'min'
+		maxdim = str(i) + 'max'
+		pi = point[mindim]
+		if pi < (rectangle[mindim] + rectangle[maxdim])/2:
+			ri = rectangle[maxdim]
+		# elif pi >  rectangle[maxdim]:
+			# ri = rectangle[maxdim]
+		else:
+			ri = rectangle[mindim]
+		ans += (pi - ri) ** 2
+	return ans    
+	pass
+
+
 
 # def MINMAXDISTNN(point, rectangle):
 #     ans = float("inf")
@@ -357,6 +388,44 @@ def pruneNNafter(ABL, i):
 	# print ABL[0: prune_index]
 	return ABL[0: prune_index]
 
+def makeRtree(filename):
+	global Root
+	with open(filename,'r') as csvfile:
+		f = csv.reader(csvfile, delimiter=',', quotechar='"')
+		for Object in f:
+			# print Object
+			Object2 = [float(Object[i].strip()) for i in Dimension]
+			i = 0
+			TempDict = {}
+			TempDict = dict.fromkeys(DefaultKeys, None)
+			while i < NumDimension:
+				key0 = str(i) + 'min'
+				key1 = str(i) + 'max'
+				TempDict[key0] = Object2[i]
+				TempDict[key1] = Object2[i]
+				i += 1
+			Root = Insert(Root, node(Region = TempDict, index = int(Object[0]), prob = float(Object[-2])))
+	pass
+
+# def makeRtree(filename):
+# 	global Root
+# 	with open(filename,'r') as f:
+# 		for Object in f:
+# 			Object = Object.strip().split(",")
+# 			# Object2 = [float(Object[i].strip()) for i in Dimension]
+# 			Object2 = [float(Object[-4]), float(Object[-3])]
+# 			i = 0
+# 			TempDict = {}
+# 			TempDict = dict.fromkeys(DefaultKeys, None)
+# 			while i < NumDimension:
+# 				key0 = str(i) + 'min'
+# 				key1 = str(i) + 'max'
+# 				TempDict[key0] = Object2[i]
+# 				TempDict[key1] = Object2[i]
+# 				i += 1
+# 			Root = Insert(Root, node(Region = TempDict, index = int(Object[0]), prob = float(Object[-2])))
+# 	pass
+
 def InsertSortedNN(tup):
 	global NN, k
 	dis = tup[1]
@@ -472,7 +541,7 @@ def insertsorted(minheap, x):
 #     pass
 
 def PNNIncRank(root, point):
-	global k,queue
+	global k,queue, returnList
 	heapq.heappush(queue, (0,Root))
 	minheap = []
 	p = 1
@@ -494,22 +563,31 @@ def PNNIncRank(root, point):
 	a.sort(key = lambda x:x[1], reverse = True)
 	# a = [(i[0].Region, i[1]) for i in minheap[0:int(k)]]
 	for item in a:
-		print item[0].index, item[1], item[2]
+		# print item[0].index, item[1], item[2]
+		returnList.append(item[0].index)
 	pass
 
 def PNNIncThres(root, point):
-    global k,queue
-    heapq.heappush(queue, (0,Root))
-    p = 1
-    index = 0
-    while p >= k and len(queue) > 0:
-        gg = IncNN(root, point)
-        x = gg[1]
-        if p * x.prob >= k:
-            # print (x[0].Region, p * x[0].prob)
-            print x.index, p * x.prob, gg[0]
-        p = p * (1 - x.prob)
-    pass
+	global k,queue, returnList
+	heapq.heappush(queue, (0,Root))
+	p = 1
+	minheap = []
+	index = 0
+	while p >= k and len(queue) > 0:
+		gg = IncNN(root, point)
+		x = gg[1]
+		if p * x.prob >= k:
+			# print (x[0].Region, p * x[0].prob)
+			# print x.index, p * x.prob, gg[0]
+			# returnList.append(x.index)
+			minheap.append([x.index, p * x.prob, gg[0]])
+		p = p * (1 - x.prob)
+
+	minheap.sort(key = lambda x:x[1], reverse = True)
+	for item in minheap:
+		# print item[0],item[1]
+		returnList.append(item[0])
+	pass
 
 def IncNN(root, point):
 	global queue
@@ -523,26 +601,196 @@ def IncNN(root, point):
 		# 		heapq.heappush(queue, (objectdistance(point,child.Region),child))
 		else:
 			for child in element[1].Children:
-				heapq.heappush(queue, (objectdistance(point,child.Region),child))
+				heapq.heappush(queue, (MINDISTNN(point,child.Region),child))
 	pass
 
-def makeRtree(filename):
-	global Root
-	with open(filename,'r') as f:
-		for Object in f:
-			Object = Object.strip().split(",")
-			Object2 = [float(Object[i].strip()) for i in Dimension]
-			i = 0
-			TempDict = {}
-			TempDict = dict.fromkeys(DefaultKeys, None)
-			while i < NumDimension:
-				key0 = str(i) + 'min'
-				key1 = str(i) + 'max'
-				TempDict[key0] = Object2[i]
-				TempDict[key1] = Object2[i]
-				i += 1
-			Root = Insert(Root, node(Region = TempDict, index = int(Object[0]), prob = float(Object[-2])))
+def PickAndRemove():
+	global discarded
+	minindex = 0
+	temp = discarded[0][0]
+	for index, item in enumerate(discarded):
+		if item[0] < temp:
+			minindex = index
+	return discarded.pop(index)
 	pass
+
+def CalculatePminmax(p,x):
+	global discarded
+	p_xmin = p * x.prob
+	p_xmax = p * x.prob
+	for item in discarded:
+		if item[0] <= objectdistance(x.Region, QueryDict):
+			p_xmin = p_xmin * (1 - item[1].prob)**len(item[1].Children)
+	for item in discarded:
+		if MAXDISTNN(QueryDict, item[1].Region) <= objectdistance(x.Region, QueryDict):
+			p_xmax = p_xmax * (1 - item[1].prob)
+	return [p_xmin, p_xmax]
+	pass
+
+
+def PNNIncAugThres(root, point):
+	global queue, k, discarded, returnList
+	heapq.heappush(queue, (0,Root))
+	minheap = []
+	p = 1
+	while p >= k and len(queue) > 0:
+		gg = IncNNAugThres(root, point, p)
+		x = gg[1]
+		temp = CalculatePminmax(p,x)
+		p_xmin = temp[0]
+		p_xmax = temp[1] 
+		while p_xmin < k <= p_xmax:
+			E = PickAndRemove()
+			if len(E[1].Children) == 0:
+				p = p * (1 - E[1].prob)
+			else:
+				for child in E[1].Children:
+					discarded.append((MINDISTNN(point, child.Region), child))
+			temp = CalculatePminmax(p,x)
+			p_xmin = temp[0]
+			p_xmax = temp[1] 
+		if p_xmin >= k:
+			# print x.index, p_xmin, p_xmax, gg[0]
+			minheap.append([x.index, p_xmin, p_xmax, gg[0]])
+		p = p * (1 - x.prob)
+	minheap.sort(key = lambda x:x[1], reverse = True)
+	for item in minheap:
+		returnList.append(item[0])
+	pass
+
+def PNNIncAugRank(root, point):
+	global queue, k, discarded, returnList
+	heapq.heappush(queue, (0,Root))
+	minheap = []
+	p = 1
+	pm = 0
+	hflag = 0
+	lflag = 0
+	while p >= pm and len(queue) > 0:
+		gg = IncNNAug(root, point, p, pm)
+		x = gg[1]
+		temp = CalculatePminmax(p,x)
+		p_xmin = temp[0]
+		p_xmax = temp[1] 
+		while p_xmin < pm <= p_xmax:
+			E = PickAndRemove()
+			lflag = 1
+			if len(E[1].Children) == 0:
+				p = p * (1 - E[1].prob)
+				# Do something
+				for index,item in enumerate(minheap):
+					if objectdistance(E[1].Region, QueryDict) <= objectdistance(item[0].Region):
+						item[3] = item[3] * (1 - E[1].prob)
+						hflag = 1
+			else:
+				for child in E[1].Children:
+					discarded.append((MINDISTNN(point, child.Region), child))
+					lflag = 1
+			temp = CalculatePminmax(p,x)
+			p_xmin = temp[0]
+			p_xmax = temp[1]
+		if p_xmin > pm:
+			minheap = insertsorted(minheap, [x,p_xmin,p_xmax,p,gg[0]])
+			hflag = 1
+		if hflag == 1 or lflag == 1:
+			for item in minheap:
+				temp = CalculatePminmax(item[3],item[0])
+				item[1] = temp[0]
+				item[2] = temp[1]
+			if len(minheap) < k:
+				pm = 0
+			else:
+				pm = minheap[k-1][1]
+			temp = []
+			for index, item in enumerate(minheap):
+				if item[2] < pm:
+					temp.append(index)
+			temp.sort(reverse = True)
+			for index in temp:
+				minheap.pop(index)
+		hflag = 0 
+		lflag = 0
+		p = p * (1 - x.prob)
+
+	while len(minheap) > 0 and len(discarded) > 0:
+		E = PickAndRemove()
+		lflag = 1
+		if len(E[1].Children) == 0:
+			p = p * (1 - E[1].prob)
+			# Do something
+			for index,item in enumerate(minheap):
+				if objectdistance(E[1].Region, QueryDict) <= objectdistance(item[0].Region):
+					item[3] = item[3] * (1 - E[1].prob)
+					hflag = 1
+		else:
+			for child in E[1].Children:
+				discarded.append((MINDISTNN(point, child.Region), child))
+				lflag = 1
+		temp = CalculatePminmax(p,x)
+		p_xmin = temp[0]
+		p_xmax = temp[1]
+
+		for item in minheap:
+			temp = CalculatePminmax(item[3],item[0])
+			item[1] = temp[0]
+			item[2] = temp[1]
+		if len(minheap) < k:
+			pm = 0
+		else:
+			pm = minheap[k-1][1]
+		temp = []
+		for index, item in enumerate(minheap):
+			if item[2] < pm:
+				temp.append(index)
+		temp.sort(reverse = True)
+		for index in temp:
+			minheap.pop(index)
+		maxdist = 0
+		for item in minheap:
+			if objectdistance(QueryDict, item[0].Region) > maxdist:
+				maxdist = objectdistance(QueryDict, item[0].Region)
+		temp = []
+		for index,item in enumerate(discarded):
+			if item[0] > maxdist:
+				temp.append(index)
+		temp.sort(reverse = True)
+		for index in temp:
+			discarded.pop(index)
+	a = minheap[0:int(k)]
+	a.sort(key = lambda x:x[1], reverse = True)
+	# a = [(i[0].Region, i[1]) for i in minheap[0:int(k)]]
+	for item in a:
+		# print item[0].index, item[1], item[2]
+		returnList.append(item[0].index)
+	pass
+
+
+def IncNNAugThres(root, point, pfirst):
+	global queue, discarded, k
+	while len(queue) != 0:
+		element = heapq.heappop(queue)
+		if len(element[1].Children) == 0:
+			return element
+		else:
+			if pfirst * element[1].prob < k:
+				discarded.append(element)
+			else:
+				for child in element[1].Children:
+					heapq.heappush(queue, (MINDISTNN(point,child.Region),child))
+
+def IncNNAug(root, point, pfirst, pm):
+	global queue, discarded, k
+	while len(queue) != 0:
+		element = heapq.heappop(queue)
+		if len(element[1].Children) == 0:
+			return element
+		else:
+			if pfirst * element[1].prob < pm:
+				discarded.append(element)
+			else:
+				for child in element[1].Children:
+					heapq.heappush(queue, (MINDISTNN(point,child.Region),child))
+
 
 if __name__ == "__main__":
 	# Start_Time = 0
@@ -565,10 +813,12 @@ if __name__ == "__main__":
 	Heap = []
 	BloodGroup = ''
 	BloodGroupList = ['A+','AB+','B+','O+']
+	returnList = []
 	# SkylinePoints = []
 	Root = None
 	NN = []
 	queue = []
+	discarded = []
 	k = 0
 	with open('query_real.txt','r') as f:
 		# Dimension = [i- 1 for i in map(int, f.readline().strip().split())]
@@ -619,28 +869,92 @@ if __name__ == "__main__":
 	else:
 		print "wrong output type argument"
 
-	# if BloodGroup == 'A+':
-	#     makeRtree('newdonordb_a.csv')
-	# elif BloodGroup == 'AB+':
-	#     makeRtree('newdonordb_ab.csv')
-	# elif BloodGroup == 'B+':
-	#     makeRtree('newdonordb_b.csv')
-	# else:
-	#     makeRtree('newdonordb_o.csv')
-	makeRtree('newdonordb.csv')
-	NNall(Root, QueryDict)
-	# for printing and sorting the distance
-	NN.sort(key= lambda x: x[1])
-	for item in NN:
-		print item[0].index, item[1], item[0].prob
-
-	print '-------------------'
-	if arglist[4] == 'threshold':
+	if BloodGroup == 'A+':
+		makeRtree('newdonordb_a.csv')
+	elif BloodGroup == 'AB+':
+		makeRtree('newdonordb_ab.csv')
+	elif BloodGroup == 'B+':
+		makeRtree('newdonordb_b.csv')
+	else:
+		makeRtree('newdonordb_o.csv')
+	# makeRtree('newdonordb_old.csv')
+	# print '-------------------'
+	if arglist[4] == 'threshold' and arglist[6] == '0':
 		PNNIncThres(Root, QueryDict)
-	elif arglist[4] == 'kbest':
+	elif arglist[4] == 'kbest' and arglist[6] == '0':
 		PNNIncRank(Root, QueryDict)
+	elif arglist[4] == 'kbest' and arglist[6] == '1':
+		PNNIncAugRank(Root, QueryDict)
+	elif arglist[4] == 'threshold' and arglist[6] == '1':
+		PNNIncAugThres(Root, QueryDict)
 	else:
 		print 'problem'
+	temp = []
+	# with open('newdonordb_old.csv','r') as f:
+	# 	for Object in f:
+	# 		Object = Object.strip().split(",")
+	# 		if int(Object[0]) in returnList:
+	# 			# print [Object[1].strip(),Object[4].strip(),Object[6].strip(),Object[11].strip(),Object[13].strip()]
+	# 			temp.append([int(Object[0]),Object[1].strip(),Object[4].strip(),Object[6].strip(),Object[11].strip(),Object[13].strip()])
+	# for index in returnList:
+	# 	for item in temp:
+	# 		if item[0] == index:
+	# 			print item
+	# 			break
+
+	if BloodGroup == 'A+':
+		temp = []
+		with open('newdonordb_a.csv','r') as f:
+			for Object in f:
+				Object = Object.strip().split(",")
+				if int(Object[0]) in returnList:
+					# print [Object[1].strip(),Object[4].strip(),Object[6].strip(),Object[11].strip(),Object[13].strip()]
+					temp.append([int(Object[0]),Object[1].strip(),Object[4].strip(),Object[6].strip(),Object[11].strip(),Object[13].strip()])
+		for index in returnList:
+			for item in temp:
+				if item[0] == index:
+					print item
+					break
+	elif BloodGroup == 'AB+':
+		temp = []
+		with open('newdonordb_ab.csv','r') as f:
+			for Object in f:
+				Object = Object.strip().split(",")
+				if int(Object[0]) in returnList:
+					# print [Object[1].strip(),Object[4].strip(),Object[6].strip(),Object[11].strip(),Object[13].strip()]
+					temp.append([int(Object[0]),Object[1].strip(),Object[4].strip(),Object[6].strip(),Object[11].strip(),Object[13].strip()])
+		for index in returnList:
+			for item in temp:
+				if item[0] == index:
+					print item
+					break
+	elif BloodGroup == 'B+':
+		temp = []
+		with open('newdonordb_b.csv','r') as f:
+			for Object in f:
+				Object = Object.strip().split(",")
+				if int(Object[0]) in returnList:
+					# print [Object[1].strip(),Object[4].strip(),Object[6].strip(),Object[11].strip(),Object[13].strip()]
+					temp.append([int(Object[0]),Object[1].strip(),Object[4].strip(),Object[6].strip(),Object[11].strip(),Object[13].strip()])
+		for index in returnList:
+			for item in temp:
+				if item[0] == index:
+					print item
+					break
+	else:
+		temp = []
+		with open('newdonordb_o.csv','r') as f:
+			for Object in f:
+				Object = Object.strip().split(",")
+				if int(Object[0]) in returnList:
+					# print [Object[1].strip(),Object[4].strip(),Object[6].strip(),Object[11].strip(),Object[13].strip()]
+					temp.append([int(Object[0]),Object[1].strip(),Object[4].strip(),Object[6].strip(),Object[11].strip(),Object[13].strip()])
+		for index in returnList:
+			for item in temp:
+				if item[0] == index:
+					print item
+					break
+
 	# heapq.heappush(queue, (0,Root))
 	# IncNN(Root, {"0min":0, "0max":0, "1min":0, "1max":0})
 	# temp(Root, {"0min":0, "0max":0, "1min":0, "1max":0})
